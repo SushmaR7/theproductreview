@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from "react";
+import React,{use, useEffect, useState} from "react";
 import ReviewCard from "../components/ReviewCard";
 import api from '../api/api';
 import Notes from '../components/Notes';
@@ -8,13 +8,19 @@ import Product from '../data/Product.json';
 import PopUpData from "../components/PopUpData";
 import Pagination from "../components/Pagination";
 import Filters from "../components/Filters";
+import { GoThumbsup,GoThumbsdown } from "react-icons/go";
+
 function ViewReview() {
+  //Average review 
+  const [avgRvw,SetAvgRvw]=useState(0);
+  //--
   //--------pagination
     const numbOfItems=4;
     const [pgStInd,SetPgStInd]=useState(0); //for data --parent
     const [pgEndInd,SetPgEndInd]=useState(numbOfItems-1); //for data --parent
    
     //----------
+    
     const [filtVal,SetFiltVal]=useState({
       rating:"-1",
       date:"",
@@ -37,7 +43,9 @@ function ViewReview() {
       "email": "",
       "phone": "",
       "review": "",
-      "rating": 0
+      "rating": 0,
+      "likeCount":0,
+      "unlikeCount":0
     }]);
     const [displayData,SetDisplayData]=useState([]);
 
@@ -54,8 +62,21 @@ function ViewReview() {
     SetPgEndInd(prev=>prev=end);
    }
     //----pgnation end
+   //--Like count func
+   const likeCount=(a,id)=>
+   {
 
-   
+    let dt=JSON.parse(localStorage.getItem("data"));
+    if(a==0){
+      dt.find(i=>i.id==id).likeCount= dt.find(i=>i.id==id).likeCount+1;
+    }
+    if(a==1){
+        dt.find(i=>i.id==id).unlikeCount= dt.find(i=>i.id==id).unlikeCount+1; 
+    }
+    localStorage.setItem("data",JSON.stringify(dt));
+    getDataWithoutApi();
+   }
+   //
     const getData=async ()=>{ //with api ..
       const response = await api.get("/reviews");
       SetReviewData(response.data);
@@ -64,9 +85,8 @@ function ViewReview() {
     };
     const getDataWithoutApi=()=>{
       const response = JSON.parse(localStorage.getItem("data"));
-      //console.log(response);
       SetReviewData(p=>response);
-      //SetDisplayData(p=>response);
+      SetDisplayData(p=>response);
       return response;
     }
 
@@ -80,6 +100,10 @@ function ViewReview() {
       {
         //SetDisplayData(reviewData); //with api
         SetDisplayData(JSON.parse(localStorage.getItem("data"))); //wthout api
+        let rating_Arr=JSON.parse(localStorage.getItem("data")).map(elm=>elm.rating);
+        let avg=rating_Arr.reduce((acc,curr)=>acc+parseInt(curr),0)/rating_Arr.length;
+        avg=Math.floor((avg*100))/100;
+       SetAvgRvw(avg);
       }
       else
       {
@@ -93,14 +117,21 @@ function ViewReview() {
             dt=dt.filter(i=>i.rating==filtVal.rating);            
           }
           SetDisplayData(dt);
-      }
 
+          let rating_Arr=dt.map(elm=>elm.rating);
+          let avg=(rating_Arr.reduce((acc,curr)=>acc+parseInt(curr),0)/rating_Arr.length);
+          avg=Math.floor((avg*100))/100;
+          SetAvgRvw(avg);
+      }
+      
+
+      
     },[filtVal]);
  //Slice - pagination
     const revList=displayData?.slice(pgStInd,pgEndInd+1).map(rev=>{
       
       const prName=Product.Products.find(i=>i.id==rev.selVal)?.name;
-
+      
       return <div  key={rev.id} className="flex justify-center items-center w-full col-span-2"> 
          <ReviewCard styleCls={"hover:ring-2 hover:ring-gray-400"} >
              <div className="px-5 py-4">
@@ -109,6 +140,9 @@ function ViewReview() {
                 <h2 onClick={()=>(onClickPopup(rev.id))} className="text-blue-500 hover:cursor-pointer semi-bold text-xl">{rev.name}</h2>
                 <p className="text-base mt-3">{rev.review}</p>
                 <p className="text-yellow-700">{`Rating:${rev.rating}`}</p>
+                <div className="flex">
+                  <div className="m-2 cursor-pointer" onClick={()=>{likeCount(0,rev.id)}}><GoThumbsup />{rev.likeCount}</div>
+                 <div className="m-2 cursor-pointer"  onClick={()=>{likeCount(1,rev.id)}}><GoThumbsdown/>{rev.unlikeCount}</div> </div>
             </div>
          </ReviewCard>
       </div>
@@ -120,6 +154,7 @@ function ViewReview() {
 
     return (
       <div>
+        
         <Filters numbOfItems={numbOfItems} filtVal={filtVal} SetPgEndInd={SetPgEndInd} SetPgStInd={SetPgStInd} SetFiltVal={SetFiltVal} selectProductList={selectProductList}/>
         <Pagination stEndIndxSet={stEndIndxSet} lent={displayData.length} numbOfItems={numbOfItems}/>
          <div className="flex gap-5">
@@ -127,6 +162,9 @@ function ViewReview() {
                {revList.length>0? (revList) : (<span className="font-bold justify-items-center">No items</span>)}
            </div>
          </div>
+         <div className="justify-items-center w-full font-semibold rounded overflow-hidden shadow-lg bg-green p-5 b-2 border-black">
+          <div>{`Average Product Review:${avgRvw}`}</div>
+          </div>
          {userDetailPopup && 
           <ModalPopUp closeFunc={onClickPopupClose}>
             <PopUpData revwPopData={revwPopData} Product={Product} />
