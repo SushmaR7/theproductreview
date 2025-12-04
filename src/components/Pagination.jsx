@@ -37,7 +37,8 @@ function Pagination({stEndIndxSet,lent,numbOfItems})
 
     //----pgnation end
 
-     const totalPages = Math.ceil(lent/numbOfItems);
+     const totPg=Math.ceil(lent/numbOfItems);
+     const totalPages = totPg?totPg:1;
     const pgNumb=[...Array(totalPages).keys()].map(i=>i+1);
     const isDisableLeftPg= (pgNo==0 || pgNumSt==0)?true:false;
     const isDisablerightPg=(totalPages-1==pgNo || pgNumSt==totalPages-3)?true:false;

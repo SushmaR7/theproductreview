@@ -1,4 +1,4 @@
-import React,{use, useEffect, useState} from "react";
+import React,{useEffect, useState} from "react";
 import ReviewCard from "../components/ReviewCard";
 import api from '../api/api';
 import Notes from '../components/Notes';
@@ -89,6 +89,12 @@ function ViewReview() {
       SetDisplayData(p=>response);
       return response;
     }
+    const getAvgRating=(dt)=>{
+          let rating_Arr=dt.map(elm=>elm.rating);
+          let avg=(rating_Arr.reduce((acc,curr)=>acc+parseInt(curr),0)/rating_Arr.length);
+          avg=Math.floor((avg*100))/100;
+          SetAvgRvw(avg?avg:0);
+    }
 
     useEffect(()=>{
       //getData();   //with api
@@ -100,10 +106,8 @@ function ViewReview() {
       {
         //SetDisplayData(reviewData); //with api
         SetDisplayData(JSON.parse(localStorage.getItem("data"))); //wthout api
-        let rating_Arr=JSON.parse(localStorage.getItem("data")).map(elm=>elm.rating);
-        let avg=rating_Arr.reduce((acc,curr)=>acc+parseInt(curr),0)/rating_Arr.length;
-        avg=Math.floor((avg*100))/100;
-       SetAvgRvw(avg);
+        let rating_Arr=JSON.parse(localStorage.getItem("data"));
+        getAvgRating(rating_Arr);
       }
       else
       {
@@ -117,15 +121,8 @@ function ViewReview() {
             dt=dt.filter(i=>i.rating==filtVal.rating);            
           }
           SetDisplayData(dt);
-
-          let rating_Arr=dt.map(elm=>elm.rating);
-          let avg=(rating_Arr.reduce((acc,curr)=>acc+parseInt(curr),0)/rating_Arr.length);
-          avg=Math.floor((avg*100))/100;
-          SetAvgRvw(avg);
+          getAvgRating(dt);
       }
-      
-
-      
     },[filtVal]);
  //Slice - pagination
     const revList=displayData?.slice(pgStInd,pgEndInd+1).map(rev=>{
