@@ -5,7 +5,7 @@ import RatingRdioBtn from "../components/RatingRadioBtn";
 import api from '../api/api';
 import ModalPopUp from "../components/ModalPopUp";
 import axios from "axios";
-
+import Inpt from "../components/Inpt";
 function WriteReview() {
 
     const defaultFormData={
@@ -160,24 +160,26 @@ const [errMsg,SetErrMsg]=useState({
               {
                 errMsg.errProd && <p className="text-red-700">{errMsg.errProd}</p>
               }
-              <div className="mb-4 w-[700px]">
-                  <label className={lblClass}>Name: </label>
-                  <input className={inptClass} type="text" id="name" value={formData.name} onChange={(e)=>{chngInpt("nameInp",e)}}/>
-              </div>
+              <Inpt lblClass={lblClass} inptClass={inptClass} 
+              id={"name"} value={formData.name} chngInpt={chngInpt} name_onC={"nameInp"} 
+              lblValue={"Name: "}>
+              </Inpt>
+              
               {/** Error message for name */}
-              <div className="mb-4 w-[700px]">
-                  <label className={lblClass}>Email: </label>
-                  <input className={inptClass} type="text" id="email" value={formData.email} onChange={(e)=>chngInpt("emailInp",e)}/>
-                  {/** Error message for email */}
+              <Inpt lblClass={lblClass} inptClass={inptClass} 
+              id={"email"} value={formData.email} chngInpt={chngInpt} name_onC={"emailInp"} 
+              lblValue={"Email: "}>
+              </Inpt>
+              
+              {/** Error message for email */}
                   {
                     errMsg.errEmail && <p className="text-red-700">{errMsg.errEmail}</p>
                   }
-              </div>
-              {/** Error message for email */}
-              <div className="mb-4 w-[700px]">
-                <label className={lblClass}>Phone:</label>
-                <input className={inptClass} type="text" id="phone" value={formData.phone} onChange={(e)=>chngInpt("phoneInp",e)}/>
-              </div>
+              <Inpt lblClass={lblClass} inptClass={inptClass} 
+              id={"phone"} value={formData.phone} chngInpt={chngInpt} name_onC={"phoneInp"} 
+              lblValue={"Phoone: "}>
+              </Inpt>
+              
               {/** Error message for phone */}
               {
                 errMsg.errPhone && <p className="text-red-700">{errMsg.errPhone}</p>

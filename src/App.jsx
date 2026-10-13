@@ -6,6 +6,8 @@ import WriteReview from './pages/WriteReview';
 import {HashRouter as   BrowserRouter,Routes,Route} from 'react-router-dom';
 import HeaderComp from './components/HeaderComp';
 import dt from '../db.json';
+
+
 function App() {
   useEffect(()=>{
     const response = dt;
